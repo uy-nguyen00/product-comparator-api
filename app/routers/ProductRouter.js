@@ -11,4 +11,6 @@ productRouter.post('/:id/create-update', userController.authenticate(), productC
 
 productRouter.post('/:id/delete', userController.authenticate(), productController.deleteProduct);
 
+productRouter.post('/:p1/:p2', productController.compareProducts);
+
 module.exports = productRouter;

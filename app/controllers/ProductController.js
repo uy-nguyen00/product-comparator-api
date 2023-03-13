@@ -53,9 +53,12 @@ async function createUpdate(req, res) {
                 brand: req.body.brand,
                 model: req.body.model,
                 size: req.body.size,
-                resolution: req.body.resolution,
+                width: req.body.width,
+                height: req.body.height,
                 refreshRate: req.body.refreshRate,
-                connectivity: req.body.connectivity
+                connectivity: req.body.connectivity,
+                image: req.body.image,
+                price: req.body.price
             });
             response = {
                 status: requestResponse.status,
@@ -84,9 +87,12 @@ async function createUpdate(req, res) {
             brand: req.body.brand,
             model: req.body.model,
             size: req.body.size,
-            resolution: req.body.resolution,
+            width: req.body.width,
+            height: req.body.height,
             refreshRate: req.body.refreshRate,
-            connectivity: req.body.connectivity
+            connectivity: req.body.connectivity,
+            image: req.body.image,
+            price: req.body.price
         });
         response = {
             status: requestResponse.status,
@@ -115,20 +121,49 @@ async function deleteProduct(req, res) {
     }
 }
 
+async function compareProducts(req, res) {
+    try {
+        const product1 = await getById(req.params.p1);
+        const product2 = await getById(req.params.p2);
+
+        const result = {
+            price: compareSpec(product2.price, product1.price),
+            refreshRate: compareSpec(product1.refreshRate, product2.refreshRate),
+            size: compareSpec(product1.size, product2.size),
+            connectivity: compareSpec(product1.connectivity.length, product2.connectivity.length),
+        };
+
+        const response = {
+            status: 200,
+            type: 'result',
+            message: result
+        };
+
+        handleResponse(response, req, res);
+    } catch (error) {
+        handleError(error, req, res);
+    }
+}
+
 // Private functions
 async function getById(id) {
     const response = await axiosInstance.get(collection + `?q={"id":${id}}`);
     return response.data[0];
 }
+
 async function getByBrandAndModel(brand, model) {
     const response = await axiosInstance.get(collection + `?q={"brand":"${brand}","model":"${model}"}`);
     return response.data[0];
 }
 
+function compareSpec(p1, p2) {
+    return Number((p1 / p2).toFixed(2));
+}
 
 module.exports = {
     readAll: readAll,
     read: read,
     createUpdate: createUpdate,
-    deleteProduct: deleteProduct
+    deleteProduct: deleteProduct,
+    compareProducts: compareProducts
 }
